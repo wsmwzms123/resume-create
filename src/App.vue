@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Header from '@/views/header.vue'
+import Header from '@/views/header'
 
 export default {
   name: 'App',

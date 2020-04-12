@@ -1,15 +1,17 @@
 <template>
   <header class="profile">
-    <Icon href="#icon-avatar-girl"></Icon>
+    <div class="basic-info">
+      <Avatar />
+    </div>
   </header>
 </template>
 
 <script>
-import Icon from '@/components/Icon.js'
+import Avatar from './avatar'
 export default {
   name: 'Header',
   components: {
-    Icon
+    Avatar
   }
 }
 </script>
@@ -18,5 +20,8 @@ export default {
   header.profile {
     background: #fafafa;
     height: 320px;
+    .basic-info {
+      padding: 32px;
+    }
   }
 </style>
