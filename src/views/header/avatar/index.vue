@@ -8,23 +8,49 @@
       v-else
       :src="src"
       alt="我的头像">
-    <label class="avatar-modal" for="avatar-upload">
-      <input type="file" name="avatar-upload" id="avatar-upload">
+    <label class="avatar-modal" @change="changeHandler">
+      <input type="file"  id="avatar-upload">
       <Icon href="#icon-camera" width="32px"/>
     </label>
+    <cropper
+      :visible.sync="cropperVisible"
+    >
+
+    </cropper>
   </div>
 </template>
 
 <script>
 import Icon from '@/components/Icon.vue'
+import Cropper from './cropper'
 export default {
   name: 'Avatar',
   components: {
-    Icon
+    Icon,
+    Cropper
   },
   data () {
     return {
-      src: ''
+      src: '',
+      cropperVisible: false
+    }
+  },
+  methods: {
+    changeHandler (e) {
+      let file = e.target.files
+      if (!file || !file.length) return
+      file = Array.from(file).pop()
+      if (!this.isStaticPic(file)) {
+        this.$message.error('[FBI WARNNING]: 上传头像图片只能是 jp(e)g|png|webp 格式!')
+      }
+      const blob = URL.createObjectURL(file)
+      this.cropperVisible = true
+      console.log(blob)
+    },
+    isStaticPic (file) {
+      if (!file || !file.type) return false
+      const LIMIT_TYPES = ['png', 'jpg', 'jpeg', 'webp']
+      return LIMIT_TYPES.some(type => file.type.includes(type))
     }
   }
 }
