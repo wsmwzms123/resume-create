@@ -13,6 +13,7 @@
       <Icon href="#icon-camera" width="32px"/>
     </label>
     <cropper
+      :blob="imgBlob"
       :visible.sync="cropperVisible"
     >
 
@@ -32,7 +33,8 @@ export default {
   data () {
     return {
       src: '',
-      cropperVisible: false
+      cropperVisible: false,
+      imgBlob: ''
     }
   },
   methods: {
@@ -41,11 +43,10 @@ export default {
       if (!file || !file.length) return
       file = Array.from(file).pop()
       if (!this.isStaticPic(file)) {
-        this.$message.error('[FBI WARNNING]: 上传头像图片只能是 jp(e)g|png|webp 格式!')
+        return this.$message.error('[FBI WARNNING]: 上传头像图片只能是 jp(e)g|png|webp 格式!')
       }
-      const blob = URL.createObjectURL(file)
+      this.imgBlob = URL.createObjectURL(file)
       this.cropperVisible = true
-      console.log(blob)
     },
     isStaticPic (file) {
       if (!file || !file.type) return false
