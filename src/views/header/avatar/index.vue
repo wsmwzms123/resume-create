@@ -1,15 +1,23 @@
 <template>
   <div class="avatar">
-    <!-- <Icon
-      v-if="!src"
+    <Icon
+      v-if="!hasSetAvatar"
       href="#icon-robot"
-      width="88px"/> -->
-    <canvas id="canvas"></canvas>
-    <label class="avatar-modal" @input="handleInput">
-      <input type="file"  id="avatar-upload">
+      width="88px"/>
+    <canvas id="canvas" :width="CANVAS_WIDTH" :height="CANVAS_HEIGHT"></canvas>
+    <label class="avatar-modal" >
+      <input
+        accept="image/*"
+        ref="fileInput"
+        type="file"
+        id="avatar-upload"
+        @click="$refs.fileInput.value = null"
+        @input="handleInput">
       <Icon href="#icon-camera" width="32px"/>
     </label>
     <cropper
+      :append-to-body="true"
+      @get-avatar="getAvatar"
       @close="handleDialogClose"
       :blob="imgBlob"
       :visible.sync="cropperVisible">
@@ -20,6 +28,8 @@
 <script>
 import Icon from '@/components/Icon.vue'
 import Cropper from './cropper'
+const CANVAS_WIDTH = 88
+const CANVAS_HEIGHT = 88
 export default {
   name: 'Avatar',
   components: {
@@ -28,16 +38,40 @@ export default {
   },
   data () {
     return {
-      src: '',
+      hasSetAvatar: false,
       cropperVisible: false,
-      imgBlob: ''
+      imgBlob: '',
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT
     }
   },
   methods: {
+    getAvatar (img, {
+      scale,
+      left,
+      top,
+      cropperLeft,
+      cropperTop,
+      cropperWidth,
+      cropperHeight
+    }) {
+      const ctx = document.querySelector('#canvas').getContext('2d')
+      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+      const { naturalWidth, naturalHeight, width, height } = img
+      const ratioX = naturalWidth / (scale * width)
+      const ratioY = naturalHeight / (scale * height)
+      const originLeft = (cropperLeft - left * scale) * ratioX
+      const originTop = (cropperTop - top * scale) * ratioY
+      const coveredWidth = cropperWidth * ratioX
+      const coveredHeight = cropperHeight * ratioY
+      ctx.drawImage(img, originLeft, originTop, coveredWidth, coveredHeight, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+      this.hasSetAvatar = true
+    },
     handleDialogClose (visible = false) {
       this.cropperVisible = visible
     },
     handleInput (e) {
+      this.imgBlob = ''
       let file = e.target.files
       if (!file || !file.length) return
       file = Array.from(file).pop()
@@ -68,13 +102,13 @@ export default {
     cursor: pointer;
     .avatar-modal {
       @include flex-center;
-      transition: .3s;
-      height: 0;
+      transition: .5s;
+      height: 100%;
       width: 100%;
       background: #3a3838cc;
       position: absolute;
       top: 0;
-      opacity: .5;
+      opacity: 0;
       #avatar-upload {
         display: none;
       }
@@ -83,7 +117,6 @@ export default {
       @include covered;
     }
     &:hover .avatar-modal {
-      height: 100%;
       opacity: 1;
     }
   }

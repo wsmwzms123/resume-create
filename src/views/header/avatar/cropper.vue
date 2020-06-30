@@ -2,7 +2,6 @@
 import url from './background-url'
 import { on, off } from 'element-ui/src/utils/dom'
 import { cursorInsideEl } from '@/utils/index'
-import dom2Image from 'dom-to-image'
 export default {
   name: 'Cropper',
   props: {
@@ -12,13 +11,13 @@ export default {
     return {
       scale: 1,
       left: 0,
-      top: 0,
-      canDrag: false
+      top: 0
     }
   },
   render (h) {
     return (
       <el-dialog
+        on-open={this.initCropper}
         width="340px"
         title="请选择裁剪区域"
         {...{
@@ -65,18 +64,27 @@ export default {
   },
   methods: {
     getAvatar () {
-      // const cropper = this.$refs['cropper-area']
-      const cropper = this.$refs.img
-      console.log(cropper)
-      dom2Image.toPng(cropper)
-        .then(dataUrl => {
-          console.log(dataUrl)
-        })
+      const img = this.$refs.img
+      const { offsetTop, offsetLeft, offsetWidth, offsetHeight } = this.$refs['cropper-area']
+      const { scale, left, top } = this
+      this.$emit('get-avatar', img, {
+        scale,
+        left,
+        top,
+        cropperLeft: offsetTop,
+        cropperTop: offsetLeft,
+        cropperWidth: offsetWidth,
+        cropperHeight: offsetHeight
+      })
+    },
+    initCropper () {
+      this.scale = 1
+      this.left = 0
+      this.top = 0
     },
     mousedownHandler (e) {
       const img = this.$refs.img
       if (!cursorInsideEl(e, img)) return
-      this.canDrag = true
       let clientX = e.clientX
       let clientY = e.clientY
       const mouseMoveHandler = e => {
@@ -140,6 +148,7 @@ export default {
       cursor: all-scroll;
       max-width: 100%;
       max-height: 100%;
+      transform-origin: 0 0;
     }
     .modal {
       @include absolute-covered;
