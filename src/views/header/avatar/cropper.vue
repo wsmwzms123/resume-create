@@ -1,6 +1,8 @@
 <script>
 import url from './background-url'
 import { on, off } from 'element-ui/src/utils/dom'
+import { cursorInsideEl } from '@/utils/index'
+import dom2Image from 'dom-to-image'
 export default {
   name: 'Cropper',
   props: {
@@ -17,7 +19,7 @@ export default {
   render (h) {
     return (
       <el-dialog
-        width="440px"
+        width="340px"
         title="请选择裁剪区域"
         {...{
           props: this.$attrs,
@@ -30,21 +32,50 @@ export default {
           }}
           class="cropper-wrap">
           <img
+            ref="img"
             style={this.style}
             on-load={this.initPosition}
-            on-mousedown={this.mousedownHandler}
             class="img"
             src={this.blob}
             alt="裁剪的图片" />
-          <div class="modal">
-            <div class="cropper-area"></div>
+          <div
+            ref="modal"
+            on-mousedown={this.mousedownHandler}
+            class="modal">
+            <div ref="cropper-area" class="cropper-area"></div>
+            <div class="modal-around">
+              <div class="modal-around--top"></div>
+              <div class="modal-around--right"></div>
+              <div class="modal-around--bottom"></div>
+              <div class="modal-around--left"></div>
+            </div>
           </div>
         </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button
+            on-click={() => {
+              this.$emit('close')
+            }} >取 消</el-button>
+          <el-button
+            type="primary"
+            on-click={this.getAvatar} >确 定</el-button>
+        </span>
       </el-dialog>
     )
   },
   methods: {
+    getAvatar () {
+      // const cropper = this.$refs['cropper-area']
+      const cropper = this.$refs.img
+      console.log(cropper)
+      dom2Image.toPng(cropper)
+        .then(dataUrl => {
+          console.log(dataUrl)
+        })
+    },
     mousedownHandler (e) {
+      const img = this.$refs.img
+      if (!cursorInsideEl(e, img)) return
       this.canDrag = true
       let clientX = e.clientX
       let clientY = e.clientY
@@ -52,8 +83,8 @@ export default {
         e.preventDefault()
         const x = e.clientX - clientX
         const y = e.clientY - clientY
-        this.left += x
-        this.top += y
+        this.left += x / this.scale
+        this.top += y / this.scale
         clientX = e.clientX
         clientY = e.clientY
       }
@@ -94,9 +125,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  @import "~@/styles/mixin.scss";
+  @import "./avatar";
+  $cropper-width: 300px;
+  $cropper-height: 300px;
+  $snap-width:  ($cropper-width - $avatar-width) / 2;
+  $snap-height:  ($cropper-height - $avatar-width) / 2;
   .cropper-wrap {
-    width: 400px;
-    height: 400px;
+    width: $cropper-width;
+    height: $cropper-height;
     overflow: hidden;
     position: relative;
     .img {
@@ -105,15 +142,43 @@ export default {
       max-height: 100%;
     }
     .modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      @include absolute-covered;
+      @include flex-center;
       .cropper-area {
+        @include avatar-size;
+        border: 1px solid #02d1a1;
+      }
+      .modal-around {
+        @include absolute-covered;
+        [class^=modal-around--] {
+          position: absolute;
+          background: #000;
+          opacity: .5;
+        }
+        &--top {
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: $snap-height;
+        }
+        &--bottom {
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: $snap-height;
+        }
+        &--left {
+          left: 0;
+          top: $snap-height;
+          width: $snap-width;
+          height: $avatar-width;
+        }
+        &--right {
+          right: 0;
+          top: $snap-height;
+          width: $snap-width;
+          height: $avatar-width;
+        }
       }
     }
   }

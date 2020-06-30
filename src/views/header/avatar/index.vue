@@ -4,19 +4,15 @@
       v-if="!src"
       href="#icon-robot"
       width="88px"/>
-    <img
-      v-else
-      :src="src"
-      alt="我的头像">
-    <label class="avatar-modal" @change="changeHandler">
+    <canvas id="canvas" v-else></canvas>
+    <label class="avatar-modal" @input="handleInput">
       <input type="file"  id="avatar-upload">
       <Icon href="#icon-camera" width="32px"/>
     </label>
     <cropper
+      @close="handleDialogClose"
       :blob="imgBlob"
-      :visible.sync="cropperVisible"
-    >
-
+      :visible.sync="cropperVisible">
     </cropper>
   </div>
 </template>
@@ -38,7 +34,10 @@ export default {
     }
   },
   methods: {
-    changeHandler (e) {
+    handleDialogClose (visible = false) {
+      this.cropperVisible = visible
+    },
+    handleInput (e) {
       let file = e.target.files
       if (!file || !file.length) return
       file = Array.from(file).pop()
@@ -58,29 +57,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  @import "~@/styles/mixin.scss";
+  @import "./avatar";
   .avatar {
     position: relative;
     border-radius: 50%;
     background: #fff;
     overflow: hidden;
-    width: 88px;
-    height: 88px;
+    @include avatar-size;
+    cursor: pointer;
     .avatar-modal {
-      display: none;
-      height: 100%;
+      @include flex-center;
+      transition: .3s;
+      height: 0;
       width: 100%;
       background: #3a3838cc;
       position: absolute;
       top: 0;
+      opacity: .5;
       #avatar-upload {
         display: none;
       }
     }
+    #canvas {
+      @include covered;
+    }
     &:hover .avatar-modal {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
+      height: 100%;
+      opacity: 1;
     }
   }
 </style>

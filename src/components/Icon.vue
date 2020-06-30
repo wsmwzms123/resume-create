@@ -9,8 +9,8 @@ export default {
       default: 100
     }
   },
-  render (h, a) {
-    const { props } = a
+  render (h, context) {
+    const { props } = context
     let { href, width } = props
     if (Number(width)) {
       width += '%'

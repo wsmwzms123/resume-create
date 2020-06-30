@@ -1,0 +1,6 @@
+$avatar-width: 88px;
+
+@mixin avatar-size {
+  width: $avatar-width;
+  height: $avatar-width;
+}
