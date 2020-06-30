@@ -1,10 +1,10 @@
 <template>
   <div class="avatar">
-    <Icon
+    <!-- <Icon
       v-if="!src"
       href="#icon-robot"
-      width="88px"/>
-    <canvas id="canvas" v-else></canvas>
+      width="88px"/> -->
+    <canvas id="canvas"></canvas>
     <label class="avatar-modal" @input="handleInput">
       <input type="file"  id="avatar-upload">
       <Icon href="#icon-camera" width="32px"/>
