@@ -4,6 +4,8 @@ export default {
   functional: true,
   props: {
     href: String,
+    left: Number,
+    right: Number,
     width: {
       type: [String, Number],
       default: 100
@@ -11,13 +13,20 @@ export default {
   },
   render (h, context) {
     const { props } = context
-    let { href, width } = props
+    let { href, width, left, right } = props
     if (Number(width)) {
-      width += '%'
+      width += 'px'
     }
-
+    if (left) {
+      left += 'px'
+    }
+    if (right) {
+      right += 'px'
+    }
     const style = {
       width,
+      marginRight: right,
+      marginLeft: left,
       height: width
     }
     return h('svg', {

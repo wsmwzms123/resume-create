@@ -76,6 +76,7 @@ export default {
         cropperWidth: offsetWidth,
         cropperHeight: offsetHeight
       })
+      this.$emit('close')
     },
     initCropper () {
       this.scale = 1

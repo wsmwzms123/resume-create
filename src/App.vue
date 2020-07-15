@@ -24,6 +24,7 @@ export default {
     #app {
       width: 750px;
       main.wrap {
+        padding: 30px;
         height: 100%;
         width: 100%;
         border: 1px solid #E3EBE9;
